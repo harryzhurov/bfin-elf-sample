@@ -43,7 +43,7 @@ Processor    = 'bf533'
 DeviceRev    = '0.6'
 
 #Optimization = ' '
-Optimization =' -O3 '
+Optimization =' -O2 '
 DebugLevel   =' -g3 '          # empty to disable debug info
 
 ExtraAFlags  = ' '
@@ -103,7 +103,7 @@ LOADER   = TOOLKIT_PATH + '/bin/bfin-elf-ldr'
 
 ToolkitIncPath = [TOOLKIT_PATH] # + '/bfin-elf/include'] #,  TOOLKIT_PATH + '/Blackfin/lib/src/libio']
 
-ToolkitLibPath = [TOOLKIT_PATH] # + '/Blackfin\lib532_rev_' + DeviceRev]
+ToolkitLibPath = [TOOLKIT_PATH + '/bfin-elf/lib']
 
 #-------------------------------------------------------------------------------
 #
@@ -115,7 +115,7 @@ ToolkitLibPath = [TOOLKIT_PATH] # + '/Blackfin\lib532_rev_' + DeviceRev]
 #
 IncludePath = ''.join(' -I' + i for i in SourceDirs + ToolkitIncPath)
 #IncludePathAsm = ''.join(' -flags-asm -I' + i for i in SourceDirs + ToolkitIncPath)
-LibraryPathOptions = ''  #''.join(' -Wl,-L' + i for i in ToolkitLibPath)
+LibraryPathOptions = ''#.join(' -L ' + i for i in ToolkitLibPath)
 
 
 LinkerMainScript   = os.path.join(ConfigDir, Processor + 'cpp.' + LdExt)
@@ -141,20 +141,18 @@ CFLAGS += ' -c'                       # Compiles and/or assembles only, but does
 CFLAGS += DebugLevel
 CFLAGS += ' -pipe'
 CFLAGS += ' -ffunction-sections -fdata-sections'
-#CFLAGS += ' -Wsuppress cc1164'        # Suppress warning about "void main()"
-#CFLAGS += ' -path-output ' + ObjDir
-#CFLAGS += ' -save-temps'
 CFLAGS += IncludePath + Optimization + ExtraCFlags
-CPPFLAGS  = CFLAGS #+ ' -c++ -no-implicit-inclusion '
+CPPFLAGS  = CFLAGS 
 CPPFLAGS += ' -fno-exceptions -fno-rtti'
 
 #-------------------------------------------------------------------------------
 LFLAGS  = COMMON_FLAGS
 LFLAGS += ' -Wl,--gc-sections'
-LFLAGS += ' -Wl,--script=' + LinkerMainScript
+LFLAGS += ' -T' + LinkerMainScript
 LFLAGS += ' -Wl,-Map=' + LinkerMapFile + ',--cref'
-LFLAGS += ' -Wl,-L '   + ObjDir + LibraryPathOptions
-LFLAGS += ' -nostdlib -lgcc'
+LFLAGS += ' -L '   + ObjDir + LibraryPathOptions
+LFLAGS += ' -nostartfiles'
+LFLAGS += ' -lm'
 LFLAGS += ExtraLFlags
 
 #-------------------------------------------------------------------------------
@@ -180,7 +178,6 @@ def compile_c(target, source, env):
     #
     print 'Compile:  ' + os.path.basename( str(source[0]) )
     cmd = env['CC'] + env['CFLAGS'] + ' -o ' + str(target[0]) + ' ' + str(source[0])
-    print cmd
     p = subprocess.Popen(cmd.split(), universal_newlines = True,
                          stdin  = subprocess.PIPE,
                          stdout = subprocess.PIPE,
@@ -253,10 +250,20 @@ def assembly_src(target, source, env):
     src_name = str(source[0])
     print 'Assembly: ' + src_name
     cmd = env['CC'] + env['AFLAGS'] + ' -o ' + str(target[0]) + ' ' + src_name
-    print cmd
-    p = subprocess.Popen( cmd.split() )
-    p.wait()
+    p = subprocess.Popen(cmd.split(), universal_newlines = True,
+                         stdin  = subprocess.PIPE,
+                         stdout = subprocess.PIPE,
+                         stderr = subprocess.PIPE )
+
+    out, err = p.communicate()
+    out += err
+    if out:
+        print out.replace('`', '\'')
+
+    rcode = p.returncode
+
     return p.returncode
+    
 #-------------------------------------------------------------------------------
 #
 #    Build executable file from object files
@@ -282,9 +289,9 @@ def build_bin(target, source, env):
     #
     #    Link executable
     #
-    cmd  =  env['CC'] + env['LFLAGS'] + ' -o ' + target_name_full + src_list
+    cmd  =  env['CC'] + ' -o ' + target_name_full + src_list + env['LFLAGS']
 
-    print cmd
+    #print cmd
     p = subprocess.Popen(cmd.split(), universal_newlines = True,
                          stdin  = subprocess.PIPE,
                          stdout = subprocess.PIPE,
@@ -300,30 +307,6 @@ def build_bin(target, source, env):
     print '*'*60
     if rcode != 0:
         return rcode
-
-    #-------------------------------------------------------------
-    #
-    #    Create map file
-    #
-#   cmd = env['XML2HTML'] + ' ' + ListDir + '/' + mapfile_name
-#   p = subprocess.Popen(cmd)
-#   rcode = p.wait()
-#   if rcode != 0:
-#       return
-
-    #-------------------------------------------------------------
-    #
-    #    Create dump of output sections
-    #
-#   cmd = env['ELFDUMP'] + ' ' + target_name_full
-#   f = open(dumpfile_name, 'w')
-#   p = subprocess.Popen(cmd, stdout = f)
-#   f.close()
-#   rcode = p.wait()
-#   if rcode != 0:
-#       return
-#
-#   get_info.get_info(dumpfile_name)
 
 #-------------------------------------------------------------------------------
 
@@ -374,8 +357,6 @@ env['BUILDERS'] = {
 env['ASM'          ] = ASM
 env['CC'           ] = CC
 env['LINKER'       ] = Linker
-#env['XML2HTML'     ] = XML2HTML
-#env['ELFDUMP'      ] = ELFDUMP
 env['LOADER'       ] = LOADER
 env['AFLAGS'       ] = AFLAGS
 env['CFLAGS'       ] = CFLAGS
@@ -410,14 +391,15 @@ def make_target_dict(src_list):
 #
 def make_objects(asm, cpp, c = {}):
     obj_list = []
-    for i in c.items():
-        obj_list.append( env.cObj(i[1], i[0]) )
 
     for i in cpp.items():
         obj_list.append( env.cppObj(i[1], i[0]) )
-
     for i in asm.items():
         obj_list.append( env.asmObj(i[1], i[0]) )
+
+    for i in c.items():
+        obj_list.append( env.cObj(i[1], i[0]) )
+
 
     return obj_list
 
@@ -466,7 +448,7 @@ obj_list        = make_objects(asm, cpp, c)
 #    Executable targets building
 #
 main_trg   = env.elf(source = obj_list, target = ExeDir +'/' + ProjectName)
-
+Depends(main_trg, 'cfg/bf533cpp.ld')
 
 #-------------------------------------------------------------------------------
 #
@@ -485,15 +467,10 @@ def clean(target, source, env):
     remove_files(ObjDir,    ObjExt)
     remove_files(ObjDir,    's')
     remove_files(ObjDir,    'lst')
-    remove_files(ObjDir,    'sbn')
     remove_files(ObjDir,    'ii')
     remove_files(ObjDir,    'ti')
     remove_files(ExeDir,    BinExt)
     remove_files(ExeDir,    HexExt)
-    remove_files(ExeDir,    'dmp')
-    remove_files(ExeDir,    'xml')
-    remove_files(ListDir,   'html')
-    remove_files(ListDir,   'xml')
     remove_files(ListDir,   'lst')
     remove_files(ConfigDir, 'is')
     remove_files(ScriptDir, 'pyc')
@@ -537,7 +514,7 @@ all = [main, ic]
 env.Alias('all', all)
 env.Alias('rebuild', [clean_all, all])
 
-env.AlwaysBuild('all', 'cln', 'ic')
+env.AlwaysBuild('all', 'cln')#, 'ic')
 
 Default(all)
 

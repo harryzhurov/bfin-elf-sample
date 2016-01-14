@@ -65,6 +65,7 @@
             <F N="src/device_def.h"/>
             <F N="src/scmRTOS_CONFIG.h"/>
             <F N="src/scmRTOS_TARGET_CFG.h"/>
+            <F N="src/usrlib.h"/>
         </Folder>
         <Folder
             Name="scmRTOS"
@@ -100,6 +101,7 @@
             </Folder>
         </Folder>
         <F N="cfg/bf533cpp.ld"/>
+        <F N="gcc-opt"/>
         <F N="gcc-options"/>
         <F N="SConstruct"/>
     </Files>

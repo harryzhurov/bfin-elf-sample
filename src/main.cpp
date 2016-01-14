@@ -44,8 +44,10 @@
 //******************************************************************************
 //*     ADSP-BF533/VisualDSP++ sample by Harry E. Zhurov, Copyright (c) 2005-2015
 
+#include <stdint.h>
 #include "device_def.h"
 #include "macro.h"
+#include "usrlib.h"
 
 //---------------------------------------------------------------------------
 //
@@ -55,7 +57,7 @@
 class TSlon
 {
 public:
-    TSlon() { }
+    TSlon() : a(0), b(0) { }
     TSlon(int x) : a(x), b(5) { }
     
     int get_a() const { return a; }
@@ -75,26 +77,42 @@ int f(int);
 int g(int);
 
 
+
+
 //---------------------------------------------------------------------------
 //
 //      Objects
 //
-int a;
+int a = 1;
 int b;
 volatile int c;
 volatile int d;
 
 TSlon Slon(2);
 
+usr::ring_buffer<uint16_t, 16> buf;
+
+
 //---------------------------------------------------------------------------
 
-EX_INTERRUPT_HANDLER(timer0_isr);
+EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
+//void timer0_isr() __attribute__ ((interrupt_handler));
+
+
+#include <math.h>
+
+float x = 2;
+volatile float y;
+
+//volatile uint8_t Array[32512];
 
 //---------------------------------------------------------------------------
 //#pragma noreturn
 
 int main()
-{                 
+{     
+    //y = sin(x);
+         
     //----------------------------------------------------------------------
     //
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
@@ -128,7 +146,7 @@ int main()
 
     MMR16(FIO_DIR) |= (1 << 8) + (1 << 9);
 
-    register_handler_ex(ik_ivg11, timer0_isr, 1);
+    register_handler_ex(ik_ivg11, (ex_handler_fn)timer0_isr, 1);
     MMR32(SIC_IMASK)     = (1 << 16);             // enable Timer0 interrupt
     MMR16(TIMER0_CONFIG) = PWM_OUT  
                          + IRQ_ENA 
@@ -145,9 +163,9 @@ int main()
         if( a & 0x1ul )
         {
             c = a - f(b++);
-            Slon.set_a(a);
-            Slon.set_b(c);
-
+            Slon.set_a(c);
+            buf.push( Slon.get_a() );
+            Slon.set_b( buf.pop() );
         }
         else
         {
@@ -161,7 +179,8 @@ EX_INTERRUPT_HANDLER(timer0_isr)
 {
     MMR16(TIMER_STATUS) = TIMIL0;
 
-    MMR16(FIO_FLAG_S) = (1 << 9);
+    //MMR16(FIO_FLAG_S) = (1 << 9);
+    MMR16(FIO_FLAG_T) = (1 << 9);
 }
 //---------------------------------------------------------------------------
 int f(int x)
@@ -172,6 +191,10 @@ int f(int x)
 int g(int x)
 {
      return x - 2;
+}
+//---------------------------------------------------------------------------
+extern "C" void _init() 
+{
 }
 //---------------------------------------------------------------------------
 
