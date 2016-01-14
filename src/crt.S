@@ -1,53 +1,6 @@
-
 #include <sys/platform.h>
-
-//#include <cplb.h>
 #include <sys/anomaly_macros_rtl.h>
-//#include <defBF533.h>
-//#include <def_LPBlackfin.h>
 
-//------------------------------------------------------------------------------
-//
-//   Data and code global and extern labels
-//
-//
-
-/*
-    .section data1;                      
-    .align 4;                            
-                                         
-    .extern __stack_end;                 
-                                         
-    .extern __install_default_handlers;  
-    .extern __unknown_exception_occurred;
-                                         
-    .extern _HardwareInit;               
-                                         
-                                         
-    .section ctor;                       
-    .align 4;                            
-    ___ctor_table:                       
-    .int;                                
-    .global ___ctor_table;               
-    .type   ___ctor_table, STT_OBJECT;   
-    .extern ___ctorloop;                 
-*/
-//------------------------------------------------------------------------------
-//
-//   The code
-//
-/*
-    //.section program;         
-    .text;                      
-    .align 2;                   
-    .global __start;            
-    .type __start, STT_FUNC;    
-    //.global .start.end;       
-    //.type .start.end,STT_FUNC;
-    .extern _main;              
-    .type _main, STT_FUNC;      
-*/
-    //.section .startup;
     .text
     .align 2;
     .global __start;
