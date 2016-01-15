@@ -51,9 +51,9 @@
 
 #ifndef __ASSEMBLER__
 
-#include <sys/exception.h>
 #include <sys/pll.h>
 #include <ccblkfn.h>
+#include <exc.h>
 
 #endif // __ASSEMBLER__
 

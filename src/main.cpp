@@ -146,7 +146,7 @@ int main()
 
     MMR16(FIO_DIR) |= (1 << 8) + (1 << 9);
 
-    register_handler_ex(ik_ivg11, (ex_handler_fn)timer0_isr, 1);
+    register_handler_ex(ik_ivg11, timer0_isr, 1);
     MMR32(SIC_IMASK)     = (1 << 16);             // enable Timer0 interrupt
     MMR16(TIMER0_CONFIG) = PWM_OUT  
                          + IRQ_ENA 

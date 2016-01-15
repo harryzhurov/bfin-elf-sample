@@ -6,16 +6,10 @@
 ** Registration of new Exception handling routines.
 */
 
-#pragma file_attr(  "libName=libsmall")
-#pragma file_attr(  "libFunc=register_handler")
-#pragma file_attr(  "libFunc=_register_handler")
-#pragma file_attr(  "libFunc=register_handler_ex")
-#pragma file_attr(  "libFunc=_register_handler_ex")
-#pragma file_attr(  "prefersMem=any")
-#pragma file_attr(  "prefersMemNum=50")
-#include <sys/exception.h>
 #include <sys/excause.h>
 #include <ccblkfn.h>
+#include <exc.h>
+
 
 static __inline void
 disable_int(int which)

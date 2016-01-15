@@ -55,14 +55,15 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
-            <F N="src/main.cpp"/>
-            <F N="src/reghdlr_s.c"/>
             <F N="src/crt.S"/>
+            <F N="src/main.cpp"/>
+            <F N="src/reg_handler.c"/>
         </Folder>
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
             <F N="src/device_def.h"/>
+            <F N="src/exc.h"/>
             <F N="src/scmRTOS_CONFIG.h"/>
             <F N="src/scmRTOS_TARGET_CFG.h"/>
             <F N="src/usrlib.h"/>
