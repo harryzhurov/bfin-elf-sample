@@ -91,28 +91,13 @@ volatile int d;
 TSlon Slon(2);
 
 usr::ring_buffer<uint16_t, 16> buf;
-
-
 //---------------------------------------------------------------------------
 
 EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
-//void timer0_isr() __attribute__ ((interrupt_handler));
-
-
-#include <math.h>
-
-float x = 2;
-volatile float y;
-
-//volatile uint8_t Array[32512];
 
 //---------------------------------------------------------------------------
-//#pragma noreturn
-
 int main()
 {     
-    //y = sin(x);
-         
     //----------------------------------------------------------------------
     //
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
