@@ -34,7 +34,7 @@ SECTIONS
     {   
         /* Startup code */
         . = ALIGN(4);
-        KEEP ( *startup.o( .text .text.* ) )
+        KEEP ( *crt.o( .text .text.* ) )
 
         /* Code  */
 

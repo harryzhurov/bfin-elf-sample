@@ -33,7 +33,7 @@ import scmIC
 #
 ProjectName  = 'slon'
 
-SourceDirs   = ['src']
+SourceDirs   = ['src', '../lib']
                 
 #--------------------------------------
 #
