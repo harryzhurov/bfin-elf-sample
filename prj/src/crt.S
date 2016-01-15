@@ -148,7 +148,7 @@ __unknown_exception_occurred:
 //------------------------------------------------------------------------------
 
 #if defined(__ADSPLPBLACKFIN__)
-#if SET_CLOCK_SPEED == 1
+//#if SET_CLOCK_SPEED == 1
 
 /*
 ** CLKIN == 27MHz on the EZ-Kits.
@@ -162,8 +162,9 @@ __unknown_exception_occurred:
 // returns 0 for success, -1 for error.
 
     .align 2
-    .type __pll_set_system_clocks, STT_FUNC;
-__pll_set_system_clocks:
+    .global _pll_set_system_clocks;
+    .type _pll_set_system_clocks, STT_FUNC;
+_pll_set_system_clocks:
     P0.H = PLL_DIV >> 16;
     P0.L = PLL_DIV & 0xFFFF;
     R2 = W[P0] (Z);
@@ -191,8 +192,9 @@ __pll_set_system_clocks:
 
 // int pll_set_system_vco(int msel, int df, lockcnt)
     .align 2
-    .type __pll_set_system_vco, STT_FUNC;
-__pll_set_system_vco:
+    .global _pll_set_system_vco;
+    .type _pll_set_system_vco, STT_FUNC;
+_pll_set_system_vco:
     P0.H = PLL_CTL >> 16;
     P0.L = PLL_CTL & 0xFFFF;
     R3 = W[P0] (Z);
@@ -229,7 +231,7 @@ L$wakeup:
 L$done:
     RTS;
     .size __pll_set_system_vco, .-__pll_set_system_vco
-#endif
+//#endif
 #endif /* ADSPLPBLACKFIN */
 //------------------------------------------------------------------------------
 

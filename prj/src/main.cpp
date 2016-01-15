@@ -103,8 +103,8 @@ int main()
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
     //    Set Processor Core voltage at 0.85 v
     //
-    //pll_set_system_vco(8, 0, 0x300);
-    //pll_set_system_clocks(0, 2);
+    pll_set_system_vco(8, 0, 0x300);
+    pll_set_system_clocks(0, 2);
     ssync();
     
     /////////////////////////////////////////////////////////////////////
