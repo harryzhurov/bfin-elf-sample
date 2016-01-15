@@ -63,7 +63,6 @@
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
             <F N="../lib/device_def.h"/>
             <F N="../lib/exc.h"/>
-            <F N="../lib/usrlib.h"/>
             <F N="../lib/reg_handler.c"/>
         </Folder>
         <F N="cfg/bf533cpp.ld"/>
