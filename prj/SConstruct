@@ -33,7 +33,8 @@ import scmIC
 #
 ProjectName  = 'slon'
 
-SourceDirs   = ['src', '../lib']
+SourceDirs   = ['src', 
+                '../lib']
                 
 #--------------------------------------
 #
@@ -248,7 +249,7 @@ def assembly_src(target, source, env):
     #   Launch assembler
     #
     src_name = str(source[0])
-    print 'Assembly: ' + src_name
+    print 'Assembly: ' + os.path.basename( src_name ) 
     cmd = env['CC'] + env['AFLAGS'] + ' -o ' + str(target[0]) + ' ' + src_name
     p = subprocess.Popen(cmd.split(), universal_newlines = True,
                          stdin  = subprocess.PIPE,
