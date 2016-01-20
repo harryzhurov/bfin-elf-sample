@@ -91,6 +91,14 @@ SECTIONS
     __stack_start = ORIGIN(MEM_STACK);
     __stack_end   = ORIGIN(MEM_STACK) + LENGTH(MEM_STACK);
     
+    
+    .sdram :
+    {
+        KEEP( *(.sdram *sdram.*) )
+
+    } >MEM_SDRAM0
+
+
     /DISCARD/ : { *(.note.GNU-stack) }
 }
                                                                                           
