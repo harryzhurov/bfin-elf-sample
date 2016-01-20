@@ -4,9 +4,9 @@
 #
 #     Processor: Blackfin (Analog Devices)
 #
-#     Toolkit:   VisualDSP++
+#     Toolkit:   bfin-elf
 #
-#     Copyright (c) 2006-2015, Harry E. Zhurov
+#     Copyright (c) 2006-2016, Harry E. Zhurov
 #
 #-------------------------------------------------------------------------------
 
@@ -65,9 +65,9 @@ ConfigDir   = 'cfg'
 ScriptDir   = 'cfg/script'
 ObjDir      = 'obj'
 ListDir     = 'lst'
-ExeDir      = 'bin'
+BinDir      = 'bin'
 
-ServiceDirs = [ ObjDir, ListDir, ExeDir ]
+ServiceDirs = [ ObjDir, ListDir, BinDir ]
 for i in ServiceDirs:
     curdir = os.path.join( os.getcwd(), i )
     if not os.path.exists(curdir):
@@ -352,7 +352,7 @@ env['BUILDERS'] = {
                      'asmObj' : asm2obj,
                      'cObj'   : c2obj,
                      'cppObj' : cpp2obj,
-                     BinExt   : binBuilder
+                      'elf'   : binBuilder
                   }
 
 env['ASM'          ] = ASM
@@ -401,7 +401,6 @@ def make_objects(asm, cpp, c = {}):
     for i in c.items():
         obj_list.append( env.cObj(i[1], i[0]) )
 
-
     return obj_list
 
 #-------------------------------------------------------------------------------
@@ -442,14 +441,28 @@ asm = make_target_dict(asm_files)
 #
 #    Objects builing
 #
-obj_list        = make_objects(asm, cpp, c)
+obj_list = make_objects(asm, cpp, c)
 
 #-------------------------------------------------------------------------------
 #
 #    Executable targets building
 #
-main_trg   = env.elf(source = obj_list, target = ExeDir +'/' + ProjectName)
+main_trg   = env.elf( source = obj_list, target = os.path.join(BinDir, ProjectName) )
 Depends(main_trg, 'cfg/bf533cpp.ld')
+
+#-------------------------------------------------------------------------------
+#
+#    Service targets
+#
+#---------  Runtime init  --------------
+rt_asm_files = ['crt_init.S']
+rt_cpp_files = ['main_init.cpp', 'hwinit.cpp']
+          
+rt_asm   = make_target_dict( [os.path.join('src/utils', i) for i in rt_asm_files] )
+rt_cpp   = make_target_dict( [os.path.join('src/utils', i) for i in rt_cpp_files] )
+rt_obj   = make_objects(rt_asm, rt_cpp)
+init_trg = env.elf( source = rt_obj, target = os.path.join(BinDir, 'rtinit.elf') )
+Depends(init_trg, 'cfg/bf533cpp.ld')
 
 #-------------------------------------------------------------------------------
 #
@@ -470,8 +483,8 @@ def clean(target, source, env):
     remove_files(ObjDir,    'lst')
     remove_files(ObjDir,    'ii')
     remove_files(ObjDir,    'ti')
-    remove_files(ExeDir,    BinExt)
-    remove_files(ExeDir,    HexExt)
+    remove_files(BinDir,    BinExt)
+    remove_files(BinDir,    HexExt)
     remove_files(ListDir,   'lst')
     remove_files(ConfigDir, 'is')
     remove_files(ScriptDir, 'pyc')
@@ -502,11 +515,12 @@ def check_scmRTOS_cfg(target, source, env):
 #
 #   Intermediate targets
 #
-main      = env.Alias(ProjectName, ExeDir + '/' + ProjectName + '.' + BinExt)
+main      = env.Alias(ProjectName, os.path.join(BinDir, ProjectName) + '.' + BinExt)
+rtinit    = env.Alias('rtinit', os.path.join(BinDir, 'rtinit') + '.' + BinExt)
 clean_all = env.Alias('cln',      action = clean)
 ic        = env.Alias('ic',       action = check_scmRTOS_cfg)
 
-all = [main, ic]
+all = [main, rtinit, ic]
 
 #-------------------------------------------------------------------------------
 #
