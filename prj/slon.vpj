@@ -56,6 +56,8 @@
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
             <F N="src/crt.S"/>
+            <F N="src/utils/crt_init.S"/>
+            <F N="src/utils/main_init.cpp"/>
             <F N="src/main.cpp"/>
         </Folder>
         <Folder
@@ -64,8 +66,11 @@
             <F N="../lib/device_def.h"/>
             <F N="../lib/exc.h"/>
             <F N="../lib/reg_handler.c"/>
+            <F N="../lib/pwrclk.S"/>
         </Folder>
         <F N="cfg/bf533cpp.ld"/>
+        <F N="cfg/fun.gdb"/>
+        <F N="cfg/prj.gdb"/>
         <F N="SConstruct"/>
     </Files>
 </Project>
