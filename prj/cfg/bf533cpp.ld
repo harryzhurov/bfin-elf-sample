@@ -23,14 +23,27 @@ MEMORY
 
 
 SECTIONS
-{
-    .text :
+{    
+    /*.startup :
     {
+        . = ALIGN(4);
+        KEEP ( *(.startup*) )
+    } >MEM_L1_CODE*/
+       
+    .text :
+    {   
+        /* Startup code */
+        . = ALIGN(4);
+        KEEP ( *crt*.o( .text .text.* ) )
+
+        /* Code  */
+
         *(.text .text.* .l1.text .l1.text.*)
+        
         KEEP (*(.text.*personality*))
         /* .gnu.warning sections are handled specially by elf32.em.  */
         *(.gnu.warning)
-    } >MEM_L1_CODE /* = 0 */
+    } >MEM_L1_CODE 
     
     .init :
     {
@@ -47,19 +60,29 @@ SECTIONS
         *(.rodata .rodata.*) 
     } >MEM_L1_DATA_A
     
-    .data :
-    {
-        *(.data .data.* .l1.data .l1.data.*)
-    KEEP (*(.*personality*))
-    } >MEM_L1_DATA_A
-    
     .bss :
     {
+        . = ALIGN(4);
         __bss_start = .;
         *(.bss .bss.*)
         *(COMMON)
         __bss_end = .;
     } >MEM_L1_DATA_A
+    
+    .data :
+    {
+        /* Dynamic initialization table (class object constructors addresses) */
+        . = ALIGN(4);
+        ___init_array_start = .;
+        *(.ctors)
+        ___init_array_end = .;
+        KEEP(SORT(*)(.ctors))        
+
+        . = ALIGN(4);
+        *(.data .data.* .l1.data .l1.data.*)
+        KEEP (*(.*personality*))
+    } >MEM_L1_DATA_B
+    
     
     . = ALIGN(32 / 8);
     . = ALIGN(32 / 8);
@@ -68,6 +91,14 @@ SECTIONS
     __stack_start = ORIGIN(MEM_STACK);
     __stack_end   = ORIGIN(MEM_STACK) + LENGTH(MEM_STACK);
     
+    
+    .sdram :
+    {
+        KEEP( *(.sdram *sdram.*) )
+
+    } >MEM_SDRAM0
+
+
     /DISCARD/ : { *(.note.GNU-stack) }
 }
                                                                                           

@@ -55,52 +55,22 @@
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+            <F N="src/crt.S"/>
+            <F N="src/utils/crt_init.S"/>
+            <F N="src/utils/main_init.cpp"/>
             <F N="src/main.cpp"/>
-            <F N="src/reghdlr_s.c"/>
-            <F N="src/startup.S"/>
         </Folder>
         <Folder
-            Name="Header Files"
+            Name="Library"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
-            <F N="src/device_def.h"/>
-            <F N="src/scmRTOS_CONFIG.h"/>
-            <F N="src/scmRTOS_TARGET_CFG.h"/>
-        </Folder>
-        <Folder
-            Name="scmRTOS"
-            Filters="">
-            <Folder
-                Name="core"
-                Filters="">
-                <F N="../../../../../scmRTOS/core/os_kernel.cpp"/>
-                <F N="../../../../../scmRTOS/core/os_kernel.h"/>
-                <F N="../../../../../scmRTOS/core/os_services.cpp"/>
-                <F N="../../../../../scmRTOS/core/os_services.h"/>
-                <F N="../../../../../scmRTOS/core/scmRTOS.h"/>
-                <F N="../../../../../scmRTOS/core/scmRTOS_defs.h"/>
-                <F N="../../../../../scmRTOS/core/usrlib.cpp"/>
-                <F N="../../../../../scmRTOS/core/usrlib.h"/>
-            </Folder>
-            <Folder
-                Name="port"
-                Filters="">
-                <F N="../../../../../scmRTOS/port/blackfin/vdsp/device_def.h"/>
-                <F N="../../../../../scmRTOS/port/blackfin/vdsp/os_target.cpp"/>
-                <F N="../../../../../scmRTOS/port/blackfin/vdsp/os_target.h"/>
-                <F N="../../../../../scmRTOS/port/blackfin/vdsp/os_target_asm.sbf"/>
-            </Folder>
-            <Folder
-                Name="ext"
-                Filters="">
-                <Folder
-                    Name="profiler"
-                    Filters="">
-                    <F N="../../../../../scmRTOS/ext/profiler/profiler.h"/>
-                </Folder>
-            </Folder>
+            <F N="../lib/device_def.h"/>
+            <F N="../lib/exc.h"/>
+            <F N="../lib/reg_handler.c"/>
+            <F N="../lib/pwrclk.S"/>
         </Folder>
         <F N="cfg/bf533cpp.ld"/>
-        <F N="gcc-options"/>
+        <F N="cfg/fun.gdb"/>
+        <F N="cfg/prj.gdb"/>
         <F N="SConstruct"/>
     </Files>
 </Project>
