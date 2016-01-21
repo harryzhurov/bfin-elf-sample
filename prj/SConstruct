@@ -98,6 +98,7 @@ CC       = TOOLKIT_PATH + '/bin/bfin-elf-gcc'
 Linker   = TOOLKIT_PATH + '/bin/bfin-elf-ld'
 OBJDUMP  = TOOLKIT_PATH + '/bin/bfin-elf-objdump'
 LOADER   = TOOLKIT_PATH + '/bin/bfin-elf-ldr'
+SIZE     = TOOLKIT_PATH + '/bin/bfin-elf-size'
 
 ToolkitIncPath = [TOOLKIT_PATH] # + '/bfin-elf/include'] #,  TOOLKIT_PATH + '/Blackfin/lib/src/libio']
 
@@ -164,7 +165,7 @@ def compile_c(target, source, env):
     #
     if env['FIRST_ENTRY'] == False:
         env['FIRST_ENTRY'] = True
-        print '*'*60
+        print '*'*61
 
     #------------------------------------------------
     #
@@ -173,6 +174,7 @@ def compile_c(target, source, env):
     print 'Compile:  ' + os.path.basename( str(source[0]) )
     cmd = env['CC'] + env['CFLAGS'] + ' -o ' + str(target[0]) + ' ' + str(source[0])
     rcode, out, err = utils.pexec(cmd)
+    out += err
     if out:        print out.replace('`', '\'')
     if rcode != 0: return rcode
 
@@ -194,7 +196,7 @@ def compile_cpp(target, source, env):
     #
     if env['FIRST_ENTRY'] == False:
         env['FIRST_ENTRY'] = True
-        print '*'*60
+        print '*'*61
 
     #------------------------------------------------
     #
@@ -203,6 +205,7 @@ def compile_cpp(target, source, env):
     print 'Compile:  ' + os.path.basename( str(source[0]) )
     cmd = env['CC'] + env['CPPFLAGS'] + ' -o ' + str(target[0]) + ' ' + str(source[0])
     rcode, out, err = utils.pexec(cmd)
+    out += err
     if out:        print out.replace('`', '\'')
     if rcode != 0: return rcode
 
@@ -224,7 +227,7 @@ def assembly_src(target, source, env):
     #
     if env['FIRST_ENTRY'] == False:
         env['FIRST_ENTRY'] = True
-        print '*'*60
+        print '*'*61
 
     #------------------------------------------------
     #
@@ -234,6 +237,7 @@ def assembly_src(target, source, env):
     print 'Assembly: ' + os.path.basename( src_name ) 
     cmd = env['CC'] + env['AFLAGS'] + ' -o ' + str(target[0]) + ' ' + src_name
     rcode, out, err = utils.pexec(cmd)
+    out += err
     if out:        print out.replace('`', '\'')
     if rcode != 0: return rcode
 
@@ -250,10 +254,10 @@ def assembly_src(target, source, env):
 #
 def build_bin(target, source, env):
     if env['FIRST_ENTRY'] == False:
-        print '*'*60
+        print '*'*61
         print 'Sources are up to date'
 
-    print '*'*60
+    print '*'*61
     print 'Link: ' + str(target[0])
 
     src_list = ''
@@ -270,7 +274,7 @@ def build_bin(target, source, env):
     out += err
     if out: print out.replace('`', '\'')
 
-    print '*'*60
+    #print '*'*61
     if rcode != 0:
         return rcode
 
@@ -281,6 +285,14 @@ def build_bin(target, source, env):
     cmd = env['OBJDUMP'] + ' -dCS ' + str(target[0])
     rcode, out, er = utils.pexec(cmd)
     open( os.path.join( ListDir, utils.namegen(str(target[0]), LstExt) ), 'wb' ).write(out)
+
+    #------------------------------------------------
+    #
+    #   Print sizes
+    #
+    cmd = env['SIZE'] + ' --format=sysv ' + str(target[0])
+    rcode, out, er = utils.pexec(cmd)
+    utils.print_size(out)
 
 #-------------------------------------------------------------------------------
 
@@ -333,6 +345,7 @@ env['CC'           ] = CC
 env['LINKER'       ] = Linker
 env['LOADER'       ] = LOADER
 env['OBJDUMP'      ] = OBJDUMP
+env['SIZE'         ] = SIZE
 env['AFLAGS'       ] = AFLAGS
 env['CFLAGS'       ] = CFLAGS
 env['CPPFLAGS'     ] = CPPFLAGS
