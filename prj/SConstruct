@@ -2,7 +2,7 @@
 #
 #     SCons main construct file
 #
-#     Processor: Blackfin (Analog Devices)
+#     Processor: Blackfin (Analog Devices Inc.)
 #
 #     Toolkit:   bfin-elf
 #
@@ -112,12 +112,10 @@ ToolkitLibPath = [TOOLKIT_PATH + '/bfin-elf/lib']
 #      Include, library, config files and paths
 #
 IncludePath = ''.join(' -I' + i for i in SourceDirs + ToolkitIncPath)
-#IncludePathAsm = ''.join(' -flags-asm -I' + i for i in SourceDirs + ToolkitIncPath)
 LibraryPathOptions = ''#.join(' -L ' + i for i in ToolkitLibPath)
 
 
 LinkerMainScript   = os.path.join(ConfigDir, Processor + 'cpp.' + LdExt)
-LinkerMapFile      = os.path.join(ListDir, ProjectName + os.extsep + MapExt)
 
 #-------------------------------------------------------------------------------
 #
@@ -133,9 +131,8 @@ AFLAGS += ' -c '
 AFLAGS += ExtraAFlags
 #-------------------------------------------------------------------------------
 CFLAGS  = COMMON_FLAGS
-#CFLAGS += ' -C'                       # Retains preprocessor comments in the output file
 #CFLAGS += ' -fmessage-length=0'        # output messages in one line
-CFLAGS += ' -c'                       # Compiles and/or assembles only, but does not link
+CFLAGS += ' -c'                         # Compiles and/or assembles only, but does not link
 CFLAGS += DebugLevel
 CFLAGS += ' -pipe'
 CFLAGS += ' -ffunction-sections -fdata-sections'
@@ -147,7 +144,6 @@ CPPFLAGS += ' -fno-exceptions -fno-rtti'
 LFLAGS  = COMMON_FLAGS
 LFLAGS += ' -Wl,--gc-sections'
 LFLAGS += ' -T' + LinkerMainScript
-LFLAGS += ' -Wl,-Map=' + LinkerMapFile + ',--cref'
 LFLAGS += ' -L '   + ObjDir + LibraryPathOptions
 LFLAGS += ' -nostartfiles'
 LFLAGS += ' -lm'
@@ -268,7 +264,8 @@ def build_bin(target, source, env):
     #
     #    Link executable
     #
-    cmd  =  env['CC'] + ' -o ' + str(target[0]) + src_list + env['LFLAGS']
+    cmd  =  env['CC'] + ' -o ' + str(target[0]) + src_list + env['LFLAGS'] +\
+           ' -Wl,-Map=' + os.path.join(ListDir, utils.namegen(str(target[0]), MapExt)) + ',--cref'
     rcode, out, err = utils.pexec(cmd)
     out += err
     if out: print out.replace('`', '\'')
