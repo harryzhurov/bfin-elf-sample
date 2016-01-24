@@ -41,6 +41,14 @@ int g(int);
 
 volatile uint16_t Array[] __attribute__ ((section(".sdram"))) = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
+#define __slon() ({ uint32_t __rval; __asm__ __volatile__ ("%0 = CYCLES;" : "=r"(__rval)); __rval; })
+
+inline uint32_t read_cycles_reg() 
+{
+    uint32_t rval; 
+    __asm__ __volatile__ ("%0 = CYCLES;" : "=r"(rval)); 
+    return rval;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -61,6 +69,11 @@ EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
 //---------------------------------------------------------------------------
 int main()
 {     
+    d = ({ b; a; });
+    
+    c = __slon();
+    d = __builtin_cli();
+    c = read_cycles_reg();
     //----------------------------------------------------------------------
     //
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
