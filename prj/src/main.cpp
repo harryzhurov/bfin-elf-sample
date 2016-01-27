@@ -61,6 +61,10 @@ volatile int d;
 
 TSlon Slon(2);
 
+float          af;
+float          bf;
+volatile float cf;
+
 usr::ring_buffer<uint16_t, 16> buf;
 //---------------------------------------------------------------------------
 
@@ -74,6 +78,11 @@ int main()
     c = __slon();
     d = __builtin_cli();
     c = read_cycles_reg();
+    
+    if(af > bf)
+    {
+        cf = cf / af + af * bf;
+    }
     //----------------------------------------------------------------------
     //
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
