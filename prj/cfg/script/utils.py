@@ -1,90 +1,101 @@
 #*******************************************************************************
-# -*- coding: cp1251 -*-
 #*
-#*    VisualDSP/Blackfin compiler messages unwrapper
+#*    Build support utilities
 #*
 #*    Version 1.0
 #*
-#*    Copyright (c) 2006-2007, Harry E. Zhurov
+#*    Copyright (c) 2016, Harry E. Zhurov
 #*
 #*******************************************************************************
 
-import sys
-import getopt
+import os
+import subprocess
 import re
 
 #-------------------------------------------------------------------------------
 # 
-#    Examples of error message
-#
 # 
-# "Src\flash.cpp", line 26: cc0020:  error: identifier "FLASH_ADDR_555" is
-#           undefined
-#       FLASH_ADDR_555() = 0xaa;   // 1
-
-#"scmRTOS\Common\scmRTOS.h", line 211 (col. 40): cc1746: {D} warning:
-#          Externally defined variable Kernel, possibly used in constructor
-#          before it has been constructed
-
-
-def handle_err(err):
-    #pattern = '(\"[^\n]+\", *line [0-9]+ \(col. [0-9]+\): +[\w\d]+:.* +?(error|warning): +.+?\^)'
-    pattern = '(\"[^\n]+\", *line [0-9]+.*? +?(error|warning):.+?\n\n)'
-    err_list = re.findall(pattern, err, re.DOTALL + re.I)
-    N = 0
-    elist = []
-    for i in err_list:
-        elist.append(i[0])
-
-    out_list = []
-    for i in elist:
-        # find newline positions
-        nl_list = re.findall('\n *', i)
-        pos_list = []
-        p = 0
-        for j in nl_list:
-            p = i.find(j, p+1)
-            pos_list.append(p)
-
-        # create output record
-        err_rec = ''
-        if len(pos_list) < 3:
-            err_rec = i
-        else:
-            err_rec = re.sub('\n *', ' ', i, len(pos_list)-2)
-
-        out_list.append(err_rec)
-
-    #print elist
-    out_err = ''
-    if elist == []:
-        out_err = err
-    else:
-        begin_pos = err.find(elist[0])
-        end_pos   = err.find(elist[-1]) + len(elist[-1])
-
-        out_err  = ''.join([err[:begin_pos]] + out_list + [err[end_pos:]])
-
-    return out_err
+# 
+def namegen(fullpath, ext):
+    basename = os.path.basename(fullpath)
+    name     = os.path.splitext(basename)[0]
+    return name + os.path.extsep + ext
 #-------------------------------------------------------------------------------
-def main():
-    #-----------------------------------------------------
-    #
-    #   Process options
-    #
-    optlist, infiles = getopt.gnu_getopt(sys.argv[1:], '')
+def pexec(cmd):
+    p = subprocess.Popen( cmd.split(), universal_newlines = True,
+                         stdin  = subprocess.PIPE,
+                         stdout = subprocess.PIPE,
+                         stderr = subprocess.PIPE )
 
-    if not infiles:  
-        print 'No input file.'
-        return
-    InFileName = infiles[0]
-    err = open(InFileName, 'rb').read()
-    err = re.sub('\r', '', err)
-    out_err = handle_err(err)
-    print out_err
+
+    out, err = p.communicate()
+
+    return p.returncode, out, err
     
 #-------------------------------------------------------------------------------
-if __name__ == '__main__': 
-    main()
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
+#-------------------------------------------------------------------------------
+def print_size(datain):
+    
+    #--------------------------------------------
+    #
+    #    Get data
+    #
+    res  = re.search('\.text\s+(\d+)\s+(\d+)\n',  datain)
+    if res: csz = res.group(1)
+    else:   csz = '0'
+     
+    res  = re.search('\.bss\s+(\d+)\s+(\d+)\n',  datain)
+    if res: bsz= res.group(1)
+    else:   bsz = '0'
+               
+    res  = re.search('\.data\s+(\d+)\s+(\d+)\n',  datain)
+    if res: dsz = res.group(1)
+    else:   dsz = '0'
+    
+    res  = re.search('\.rodata\s+(\d+)\s+(\d+)\n',  datain)
+    if res: rosz = res.group(1)
+    else:   rosz = '0'
+
+    in_records = datain.split('\n')
+    sdram_size = 0;
+    for i in in_records:
+        res  = re.search('\.sdram\w*\s+(\d+)\s+(\d+)',  i)
+        if res: sdram_size += int(res.group(1))
+  
+    if sdram_size != 0:
+        ssz = sizeof_fmt(sdram_size)
+    else:
+        ssz = '0'
+          
+    #--------------------------------------------
+    #
+    #    Print results
+    #
+    sep    = '+--------------+--------------+--------------+--------------+--------------+'
+    header = '|      code    |       bss    |      data    |    rodata    |     sdram    |'
+    
+    fw    = 10                                         # field width
+    
+    code    = '|' + ' '*(fw - len(csz))  + csz  + '    '
+    bss     = '|' + ' '*(fw - len(bsz))  + bsz  + '    '
+    data    = '|' + ' '*(fw - len(dsz))  + dsz  + '    '
+    rodata  = '|' + ' '*(fw - len(rosz)) + rosz + '    '
+    sdram   = '|' + ' '*(fw - len(ssz))  + ssz  + '    |'
+    
+    print sep
+    print header
+    print sep
+    print code + bss + data + rodata + sdram
+    print sep
+    
+    print '        L1 Code: ' + csz + ' bytes'
+    print '        L1 Data: ' + str( int(bsz) + int(dsz) + int(rosz) ) + ' bytes'
+    print ''
 #-------------------------------------------------------------------------------
 

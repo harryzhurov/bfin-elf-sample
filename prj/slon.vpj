@@ -68,7 +68,7 @@
             <F N="../lib/reg_handler.c"/>
             <F N="../lib/pwrclk.S"/>
         </Folder>
-        <F N="cfg/bf533cpp.ld"/>
+        <F N="cfg/bf533cpp.ld.S"/>
         <F N="cfg/fun.gdb"/>
         <F N="cfg/prj.gdb"/>
         <F N="SConstruct"/>

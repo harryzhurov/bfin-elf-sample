@@ -1,3 +1,9 @@
-[submodule "lib"]
-	path = lib
-	url = https://github.com/harryzhurov/bfin-elf-lib.git
+[submodule "prj/lib/bfin-elf"]
+	path = prj/lib/bfin-elf
+	url = https://github.com/emb-lib/bfin-elf-lib.git
+[submodule "prj/lib/heap_z"]
+	path = prj/lib/heap_z
+	url = https://github.com/emb-lib/heap_z.git
+[submodule "prj/lib/io"]
+	path = prj/lib/io
+	url = https://github.com/emb-lib/io.git

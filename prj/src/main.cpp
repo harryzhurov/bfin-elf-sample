@@ -1,6 +1,6 @@
 //******************************************************************************
 //*
-//*     ADSP-BF533/bfin-elf standalone program sample 
+//*     ADSP-BF533/bfin-elf standalone sample program
 //
 //*     Copyright (c) 2015-2016, Harry E. Zhurov
 //*
@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include "device_def.h"
 #include "macro.h"
-#include "usrlib.h"
 
 //---------------------------------------------------------------------------
 //
@@ -53,7 +52,10 @@ volatile int d;
 
 TSlon Slon(2);
 
-usr::ring_buffer<uint16_t, 16> buf;
+float          af;
+float          bf;
+volatile float cf;
+
 //---------------------------------------------------------------------------
 
 EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
@@ -61,6 +63,15 @@ EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
 //---------------------------------------------------------------------------
 int main()
 {     
+    d = ({ b; a; });
+    
+    d = __builtin_cli();
+    c = read_cycles_reg();
+    
+    if(af > bf)
+    {
+        cf = cf / af + af * bf;
+    }
     //----------------------------------------------------------------------
     //
     //    Set Pcocessor Core clock to 200 MHz, peripheral clock - to 100 MHz
@@ -112,8 +123,6 @@ int main()
         {
             c = a - f(b++);
             Slon.set_a(c);
-            buf.push( Slon.get_a() );
-            Slon.set_b( buf.pop() );
         }
         else
         {
