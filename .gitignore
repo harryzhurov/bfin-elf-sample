@@ -3,6 +3,7 @@ lst
 obj
 .sconsign.dblite
 *.pyc
+*.ld
 *.vpwhistu
 *.vtg
 

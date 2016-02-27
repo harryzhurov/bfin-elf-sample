@@ -1,6 +1,6 @@
 //******************************************************************************
 //*
-//*     ADSP-BF533/bfin-elf standalone program sample 
+//*     ADSP-BF533/bfin-elf standalone sample program
 //
 //*     Copyright (c) 2015-2016, Harry E. Zhurov
 //*
@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include "device_def.h"
 #include "macro.h"
-#include "usrlib.h"
 
 //---------------------------------------------------------------------------
 //
@@ -57,7 +56,6 @@ float          af;
 float          bf;
 volatile float cf;
 
-usr::ring_buffer<uint16_t, 16> buf;
 //---------------------------------------------------------------------------
 
 EX_INTERRUPT_HANDLER(timer0_isr) __attribute__ ((interrupt_handler));
@@ -125,8 +123,6 @@ int main()
         {
             c = a - f(b++);
             Slon.set_a(c);
-            buf.push( Slon.get_a() );
-            Slon.set_b( buf.pop() );
         }
         else
         {
